@@ -48,6 +48,59 @@ function getFieldId(tableId, fieldName) {
   return fieldId;
 }
 
+// Convertit récursivement les chaînes numériques dans les tableaux en entiers (requis pour les relations de Baserow)
+function prepareBaserowPayload(obj) {
+  if (obj === null || obj === undefined) return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => {
+      if (typeof item === 'string' && /^\d+$/.test(item.trim())) {
+        return parseInt(item.trim(), 10);
+      }
+      return prepareBaserowPayload(item);
+    });
+  }
+  
+  if (typeof obj === 'object') {
+    const newObj = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const val = obj[key];
+        if (Array.isArray(val)) {
+          newObj[key] = val.map(item => {
+            if (typeof item === 'string' && /^\d+$/.test(item.trim())) {
+              return parseInt(item.trim(), 10);
+            }
+            return prepareBaserowPayload(item);
+          });
+        } else {
+          newObj[key] = prepareBaserowPayload(val);
+        }
+      }
+    }
+    return newObj;
+  }
+  
+  return obj;
+}
+
+// Convertit les relations de Baserow ([{id, value}]) au format attendu par le reste du code (tableau de chaînes d'IDs)
+function mapBaserowRowToAirtable(row) {
+  const { id, order, ...fields } = row;
+  
+  for (const key in fields) {
+    if (Object.prototype.hasOwnProperty.call(fields, key)) {
+      const val = fields[key];
+      // Si c'est une relation (tableau d'objets avec id)
+      if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null && 'id' in val[0]) {
+        fields[key] = val.map(item => String(item.id));
+      }
+    }
+  }
+  
+  return { id: String(id), fields };
+}
+
 // Fonction de parsing et traduction de formules de filtres Airtable vers filtres Baserow
 function translateFormula(tableId, formula) {
   if (!formula) return '';
@@ -281,7 +334,8 @@ async function airtableFetch(endpoint, options = {}) {
       try {
         const bodyObj = JSON.parse(options.body);
         if (bodyObj && bodyObj.fields) {
-          finalOptions.body = JSON.stringify(bodyObj.fields);
+          const flatFields = prepareBaserowPayload(bodyObj.fields);
+          finalOptions.body = JSON.stringify(flatFields);
         }
       } catch (e) {
         console.warn("Erreur parsing body pour adaptation Baserow", e);
@@ -313,18 +367,14 @@ async function airtableFetch(endpoint, options = {}) {
     if (data && data.results) {
       // Liste de lignes
       return {
-        records: data.results.map(row => {
-          const { id, order, ...fields } = row;
-          return { id: String(id), fields };
-        }),
+        records: data.results.map(row => mapBaserowRowToAirtable(row)),
         offset: data.next ? new URL(data.next).searchParams.get('page') : null
       };
     }
 
     if (data && data.id) {
       // Une seule ligne (création/modification)
-      const { id, order, ...fields } = data;
-      return { id: String(id), fields };
+      return mapBaserowRowToAirtable(data);
     }
 
     return data;
