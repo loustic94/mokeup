@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portail Membre – Sucy Environnement Transition (SET)</title>
+  
+  <!-- Favicon / Styling -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ── BARRE LATÉRALE DE NAVIGATION (SIDEBAR) ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo-section">
+        <div class="logo-icon">S</div>
+        <div>
+          <h1 class="logo-text">SET 94</h1>
+          <div class="logo-sub">Transition Éco</div>
+        </div>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li>
+            <a class="nav-link active" data-tab="accueil">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" data-tab="adhesion">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              Adhésion
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" data-tab="membre">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Espace Membre
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" data-tab="seances">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Séances & Agenda
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" data-tab="depenses">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+              Dépenses
+            </a>
+          </li>
+          <li>
+            <a class="nav-link" data-tab="settings">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              Configuration
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        © 2026 SET 94<br>
+        Sucy-en-Brie
+      </div>
+    </aside>
+
+    <!-- ── ZONE DE CONTENU PRINCIPALE ── -->
+    <main class="main-content">
+      
+      <!-- Barre d'état haute -->
+      <header class="top-bar">
+        <button class="menu-toggle" id="menu-toggle-btn" aria-label="Ouvrir le menu">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <div class="user-badge" id="user-badge">
+          <div class="user-badge-dot"></div>
+          <span id="user-badge-text">Chargement de la session...</span>
+        </div>
+      </header>
+
+      <!-- ── ONGLET 1 : ACCUEIL ── -->
+      <section class="tab-content active" id="tab-accueil">
+        <div class="card">
+          <h2 class="card-title">Sucy Environnement Transition</h2>
+          <p class="card-description">Bienvenue sur le portail membre de notre association écologique locale à Sucy-en-Brie. Nous agissons ensemble pour la transition à travers nos différents ateliers.</p>
+          
+          <div class="welcome-grid">
+            <div class="stat-card">
+              <div class="stat-num" id="stat-ateliers-count">...</div>
+              <div class="stat-label">Ateliers Thématiques</div>
+              <div class="stat-desc">Zéro déchet, biodiversité, énergie, réparation vélo...</div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-num" id="stat-seances-count">...</div>
+              <div class="stat-label">Séances Programmées</div>
+              <div class="stat-desc">Des ateliers de transition ouverts à tous chaque semaine.</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2rem;">
+            <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--accent); margin-bottom: 0.75rem;">Que souhaitez-vous faire ?</h3>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button class="btn" onclick="window.AppState.switchTab('adhesion')">Adhérer à l'association</button>
+              <button class="btn btn-secondary" onclick="window.AppState.switchTab('membre')">Accéder à mon espace</button>
+              <button class="btn btn-secondary" onclick="window.AppState.switchTab('seances')">Réserver une séance</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ONGLET 2 : ADHÉSION ── -->
+      <section class="tab-content" id="tab-adhesion">
+        <div class="card">
+          <h2 class="card-title">Formulaire d'Adhésion</h2>
+          <p class="card-description">Remplissez ce formulaire pour créer votre compte ou mettre à jour vos coordonnées et vous inscrire à vos premiers ateliers.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="adh-nom">Nom <span class="req">*</span></label>
+              <input type="text" id="adh-nom" placeholder="Martin" required />
+            </div>
+            <div class="field">
+              <label for="adh-prenom">Prénom <span class="req">*</span></label>
+              <input type="text" id="adh-prenom" placeholder="Sophie" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="adh-email">Adresse e-mail <span class="req">*</span></label>
+            <input type="email" id="adh-email" placeholder="sophie.martin@exemple.com" required />
+          </div>
+
+          <div class="field">
+            <label for="adh-telephone">Téléphone</label>
+            <input type="tel" id="adh-telephone" placeholder="06 00 00 00 00" />
+          </div>
+
+          <div class="field">
+            <label for="adh-adresse">Adresse</label>
+            <input type="text" id="adh-adresse" placeholder="12 rue des Ormes" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="adh-ville">Ville</label>
+              <input type="text" id="adh-ville" placeholder="Sucy-en-Brie" />
+            </div>
+            <div class="field">
+              <label for="adh-codepostal">Code postal</label>
+              <input type="text" id="adh-codepostal" placeholder="94370" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="adh-notes">Notes complémentaires</label>
+            <textarea id="adh-notes" placeholder="Des détails sur vos motivations, vos compétences à partager..."></textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--accent); margin-bottom: 1.25rem;">Règlement & Reçu</h3>
+
+          <div class="field">
+            <label for="adh-type-rglt">Type de règlement</label>
+            <select id="adh-type-rglt">
+              <option value="">— Sélectionnez un type —</option>
+              <option value="Payant chèque">Payant chèque</option>
+              <option value="Payant CB">Payant CB</option>
+              <option value="Payant cash">Payant cash</option>
+              <option value="Invité">Invité</option>
+              <option value="Ressource">Ressource</option>
+              <option value="Non réglé!">Non réglé!</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="adh-numero-recu">Numéro de reçu</label>
+              <input type="text" id="adh-numero-recu" placeholder="2026-001" />
+            </div>
+            <div class="field">
+              <label for="adh-montant">Montant perçu (€)</label>
+              <input type="number" id="adh-montant" placeholder="25" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--accent); margin-bottom: 0.5rem;">Ateliers souhaités <span class="req" style="font-size: 1rem;">*</span></h3>
+          <p class="card-description" style="margin-bottom: 1.5rem;">Sélectionnez au moins un atelier. Vous pourrez changer ces choix d'ateliers à tout moment depuis votre Espace Membre.</p>
+
+          <div id="adh-ateliers-list" class="ateliers-grid">
+            <div style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 1.5rem;">
+              <span class="spinner spinner-dark"></span> Chargement des ateliers...
+            </div>
+          </div>
+
+          <div class="progress-container" id="adh-progress-container">
+            <div class="progress-fill" id="adh-progress-bar"></div>
+          </div>
+
+          <div id="adh-alert" class="alert success" style="display:none;"></div>
+
+          <div class="btn-wrap">
+            <button class="btn btn-secondary" onclick="AdhesionModule.reset()">Réinitialiser</button>
+            <button class="btn" id="adh-submit-btn" onclick="AdhesionModule.soumettre()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Soumettre l'adhésion
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── ONGLET 3 : ESPACE MEMBRE (PROFIL & ATELIERS) ── -->
+      <section class="tab-content" id="tab-membre">
+        <!-- Rempli dynamiquement par js/membre.js -->
+      </section>
+
+      <!-- ── ONGLET 4 : SÉANCES & AGENDA ── -->
+      <section class="tab-content" id="tab-seances">
+        <!-- Rempli dynamiquement par js/seances.js -->
+      </section>
+
+      <!-- ── ONGLET 5 : DÉPENSES ── -->
+      <section class="tab-content" id="tab-depenses">
+        <div class="card">
+          <h2 class="card-title">Nouvelle demande - Dépenses & Achats</h2>
+          <p class="card-description">Soumettez vos demandes d'achat urgent ou vos remboursements de matériel pour validation par les responsables.</p>
+
+          <form id="purchaseForm" onsubmit="event.preventDefault(); DepensesModule.soumettre();">
+            <p class="exclusion-hint">Renseignez soit un Atelier, soit un Cercle Projet (remplissez un seul des deux) :</p>
+            
+            <div class="field-row">
+              <div class="field">
+                <label for="dep-atelier">Atelier</label>
+                <input type="text" id="dep-atelier" placeholder="Ex : Informatique, Jardin..." />
+              </div>
+              <div class="field">
+                <label for="dep-cercle">ou bien Cercle Projet</label>
+                <input type="text" id="dep-cercle" placeholder="Ex : Transition numérique, Énergie..." />
+              </div>
+            </div>
+
+            <div class="divider" style="margin: 1.5rem 0;"></div>
+
+            <div class="field">
+              <label for="dep-qui">Votre adresse Gmail (Qui demande ?) <span class="req">*</span></label>
+              <input type="email" id="dep-qui" placeholder="votre.nom@gmail.com" required />
+            </div>
+
+            <div class="field">
+              <label for="dep-quoi">Quoi (Résumé de la demande) <span class="req">*</span></label>
+              <input type="text" id="dep-quoi" placeholder="Ex : Licence logicielle, Outils de jardinage..." required />
+            </div>
+
+            <div class="field">
+              <label for="dep-desc">Description & Justification du besoin <span class="req">*</span></label>
+              <textarea id="dep-desc" rows="4" placeholder="Détaillez ici votre besoin..." required></textarea>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="dep-montant">Montant estimé (€) <span class="req">*</span></label>
+                <input type="number" step="0.01" id="dep-montant" placeholder="0.00" required />
+              </div>
+              <div class="field">
+                <label for="dep-lien">Lien vers document / Devis / Facture</label>
+                <input type="url" id="dep-lien" placeholder="https://drive.google.com/..." />
+              </div>
+            </div>
+
+            <div id="dep-alert" class="alert success" style="display:none; margin-top:1rem;"></div>
+
+            <div class="btn-wrap">
+              <button class="btn btn-secondary" type="button" onclick="DepensesModule.resetForm()">Réinitialiser</button>
+              <button class="btn" id="dep-submit-btn" type="submit">Soumettre la demande</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ── ONGLET 6 : CONFIGURATION / ADMIN ── -->
+      <section class="tab-content" id="tab-settings">
+        <div class="card">
+          <h2 class="card-title">Configuration de la connexion API</h2>
+          <p class="card-description">Personnalisez les identifiants de connexion Airtable et Zapier de l'application. Les changements seront sauvegardés dans le stockage local de votre navigateur.</p>
+
+          <div class="field">
+            <label for="set-token">Jeton Airtable (PAT Token)<span class="req">*</span><span id="set-status-token" style="font-weight:normal;"></span></label>
+            <input type="text" id="set-token" placeholder="pat05rfa..." />
+          </div>
+
+          <div class="field">
+            <label for="set-base-id">ID de la base Airtable<span class="req">*</span><span id="set-status-base_id" style="font-weight:normal;"></span></label>
+            <input type="text" id="set-base-id" placeholder="appSpAP..." />
+          </div>
+
+          <div class="field">
+            <label for="set-webhook">Webhook Zapier (Dépenses)<span class="req">*</span><span id="set-status-webhook_zapier" style="font-weight:normal;"></span></label>
+            <input type="text" id="set-webhook" placeholder="https://hooks.zapier.com/..." />
+          </div>
+
+          <div id="set-alert" class="alert success" style="display:none;"></div>
+
+          <div class="btn-wrap">
+            <button class="btn settings-reset-btn" onclick="SettingsModule.reinitialiser()">Réinitialiser aux défauts</button>
+            <button class="btn btn-secondary" onclick="SettingsModule.deconnecter()">Quitter l'admin</button>
+            <button class="btn" onclick="SettingsModule.sauvegarder()">Sauvegarder les paramètres</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Centralized JS Loading (Ordre important pour les dépendances) -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  
+  <!-- Modules -->
+  <script src="js/adhesion.js"></script>
+  <script src="js/membre.js"></script>
+  <script src="js/seances.js"></script>
+  <script src="js/depenses.js"></script>
+  <script src="js/settings.js"></script>
+  
+  <!-- Contrôleur principal -->
+  <script src="js/app.js"></script>
+  
+</body>
+</html>
