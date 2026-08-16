@@ -30,6 +30,7 @@ async function ensureFieldMapping(tableId) {
 
   const fields = await res.json();
   fieldMappings[tableId] = {};
+  console.log(`[Baserow Schema] Table ${tableId} fields loaded:`, fields.map(f => `${f.name} (id: ${f.id}, type: ${f.type})`));
   fields.forEach(f => {
     fieldMappings[tableId][f.name] = `field_${f.id}`;
   });
@@ -84,21 +85,68 @@ function prepareBaserowPayload(obj) {
   return obj;
 }
 
+// Dictionnaire pour normaliser la casse et le pluriel des colonnes importées dans Baserow
+const KEY_MAPPINGS = {
+  'membre': 'Membre',
+  'membres': 'MEMBRES',
+  'atelier': 'Atelier',
+  'ateliers': 'Atelier',
+  'statut': 'Statut',
+  'date_inscription': 'Date_Inscription',
+  'date_désinscription': 'Date_Désinscription',
+  'date_desinscription': 'Date_Désinscription',
+  'date_heure': 'Date_Heure',
+  'seances': 'SEANCES',
+  'seance': 'SEANCES',
+  'nom_atelier': 'Nom_Atelier',
+  'nom': 'Nom',
+  'prénom': 'Prénom',
+  'prenom': 'Prénom',
+  'email': 'Email',
+  'téléphone': 'Téléphone',
+  'telephone': 'Téléphone'
+};
+
 // Convertit les relations de Baserow ([{id, value}]) au format attendu par le reste du code (tableau de chaînes d'IDs)
 function mapBaserowRowToAirtable(row) {
   const { id, order, ...fields } = row;
+  const mappedFields = {};
   
   for (const key in fields) {
     if (Object.prototype.hasOwnProperty.call(fields, key)) {
-      const val = fields[key];
+      let val = fields[key];
       // Si c'est une relation (tableau d'objets avec id)
       if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null && 'id' in val[0]) {
-        fields[key] = val.map(item => String(item.id));
+        val = val.map(item => String(item.id));
       }
+      
+      // Normalisation du nom de la colonne
+      const normalizedKey = KEY_MAPPINGS[key.toLowerCase()] || key;
+      mappedFields[normalizedKey] = val;
     }
   }
   
-  return { id: String(id), fields };
+  return { id: String(id), fields: mappedFields };
+}
+
+// Aligne les clés du payload d'écriture avec la casse exacte déclarée dans la table Baserow (insensible à la casse)
+function alignPayloadKeysWithSchema(tableId, payload) {
+  const tableMap = fieldMappings[tableId];
+  if (!tableMap) return payload;
+  
+  const aligned = {};
+  for (const key in payload) {
+    if (Object.prototype.hasOwnProperty.call(payload, key)) {
+      const val = payload[key];
+      const dbKey = Object.keys(tableMap).find(k => k.toLowerCase() === key.toLowerCase());
+      if (dbKey) {
+        aligned[dbKey] = val;
+      } else {
+        aligned[key] = val;
+      }
+    }
+  }
+  return aligned;
 }
 
 // Fonction de parsing et traduction de formules de filtres Airtable vers filtres Baserow
@@ -333,9 +381,11 @@ async function airtableFetch(endpoint, options = {}) {
     if (options.body) {
       try {
         const bodyObj = JSON.parse(options.body);
-        if (bodyObj && bodyObj.fields) {
-          const flatFields = prepareBaserowPayload(bodyObj.fields);
-          finalOptions.body = JSON.stringify(flatFields);
+        if (bodyObj) {
+          const fieldsToProcess = bodyObj.fields || bodyObj;
+          const flatFields = prepareBaserowPayload(fieldsToProcess);
+          const alignedFields = alignPayloadKeysWithSchema(tableId, flatFields);
+          finalOptions.body = JSON.stringify(alignedFields);
         }
       } catch (e) {
         console.warn("Erreur parsing body pour adaptation Baserow", e);
