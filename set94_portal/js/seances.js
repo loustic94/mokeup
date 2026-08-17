@@ -202,7 +202,7 @@ const SeancesModule = {
     
     // Extraire tous les ateliers uniques représentés dans ces séances
     const getAtelierNom = s => {
-      const v = s.fields['Nom_Atelier'];
+      const v = s.fields['Atelier'];
       return Array.isArray(v) ? (v[0] || '') : (v || '');
     };
     
@@ -244,7 +244,7 @@ const SeancesModule = {
     const seancesFiltreesParOption = this.getSeancesFiltreesParOptionAteliers();
 
     const getAtelierNom = s => {
-      const v = s.fields['Nom_Atelier'];
+      const v = s.fields['Atelier'];
       return Array.isArray(v) ? (v[0] || '') : (v || '');
     };
 
@@ -274,7 +274,7 @@ const SeancesModule = {
 
     listEl.innerHTML = filtreesFinal.map(s => {
       const f = s.fields;
-      const atelierVal = Array.isArray(f['Nom_Atelier']) ? f['Nom_Atelier'][0] : (f['Nom_Atelier'] || '');
+      const atelierVal = Array.isArray(f['Atelier']) ? f['Atelier'][0] : (f['Atelier'] || '');
       const placesLimitees = f['Places_Limitées'] === true;
       const placesMax = f['Places_Max'] || 0;
       const seanceComplete = f['Séance_Complète'] || f['Seance_Complete'] || '';
@@ -369,7 +369,7 @@ const SeancesModule = {
         const seanceId = seancesChoisies[i];
         const seance = this.seancesFutures.find(s => s.id === seanceId);
         const f = seance?.fields || {};
-        const atelierVal = Array.isArray(f['Nom_Atelier']) ? f['Nom_Atelier'][0] : (f['Nom_Atelier'] || '');
+        const atelierVal = Array.isArray(f['Atelier']) ? f['Atelier'][0] : (f['Atelier'] || '');
         const titreSeance = f['Titre séance'] || atelierVal || 'Séance';
 
         // Double vérification côté client
