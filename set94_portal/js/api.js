@@ -295,7 +295,7 @@ async function sendZapierWebhook(data) {
     mode: 'cors'
   });
   if (!response.ok) {
-    throw new Error(`[Zapier ${response.status}] Échec de la transmission de la demande.`);
+    throw new Error(`[Zapier ${response.status}] Échec. de la transmission de la demande.`);
   }
   return true;
 }
