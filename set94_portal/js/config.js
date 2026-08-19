@@ -109,4 +109,3 @@ const CONFIG = {
 };
 
 window.CONFIG = CONFIG;
-= CONFIG;
