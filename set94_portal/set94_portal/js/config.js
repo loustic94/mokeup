@@ -82,7 +82,7 @@ const CONFIG = {
     }
   },
 
-  // Réinitialise TOUT :(les deux fournisseurs + le choix du fournisseur actif),
+  // Réinitialise TOUT (les deux fournisseurs + le choix du fournisseur actif),
   // pour repartir sur une base saine des deux côtés.
   reset() {
     ['airtable', 'baserow'].forEach(provider => {
@@ -109,3 +109,4 @@ const CONFIG = {
 };
 
 window.CONFIG = CONFIG;
+
