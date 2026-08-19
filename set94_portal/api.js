@@ -18,18 +18,12 @@
 
 const AIRTABLE_API_BASE_URL = 'https://api.airtable.com/v0';
 
-// Correspondance nom de table (tel qu'utilisé dans les endpoints des
-// modules, ex. "SEANCES") → clé CONFIG correspondante.
-const TABLE_NAME_TO_CONFIG_KEY = {
-  MEMBRES: 'TABLE_MEMBRES',
-  ATELIERS: 'TABLE_ATELIERS',
-  SEANCES: 'TABLE_SEANCES',
-  INSCRIPTIONS: 'TABLE_INSCRIPTIONS',
-  INSCRIPTIONS_SEANCES: 'TABLE_INSCRIPTIONS_SEANCES',
-  BESOINS_URGENTS: 'TABLE_BESOINS_URGENTS',
-  VOTES_ACHATS: 'TABLE_VOTES_ACHATS',
-  VALIDEURS_ACHATS: 'TABLE_VALIDEURS_ACHATS'
-};
+// Note : les modules appelants (membre.js, seances.js, etc.) résolvent déjà
+// eux-mêmes l'identifiant de table via window.CONFIG.get('TABLE_X') avant
+// d'appeler airtableFetch(...) — cette valeur est donc déjà soit un nom de
+// table Airtable ("MEMBRES"), soit un ID numérique Baserow ("1010820"),
+// selon le fournisseur actif. Ce shim n'a donc pas besoin de retraduire quoi
+// que ce soit : il utilise directement ce qui lui est fourni.
 
 // ═══════════════════════════════════════════════════════════════════════
 // POINT D'ENTRÉE UNIQUE (inchangé pour les modules appelants)
@@ -81,10 +75,11 @@ async function baserowFetchViaAirtableShape(endpoint, options = {}) {
   }
 
   const { tableName, recordId, queryParams } = parseEndpointAirtable(endpoint);
-  const configKey = TABLE_NAME_TO_CONFIG_KEY[tableName];
-  const tableId = configKey ? window.CONFIG.get(configKey) : null;
+  // tableName est déjà l'ID numérique Baserow (résolu par l'appelant via
+  // CONFIG.get('TABLE_X') avant l'appel à airtableFetch), pas un nom littéral.
+  const tableId = tableName;
   if (!tableId) {
-    throw new Error(`Table Baserow inconnue ou non configurée pour "${tableName}".`);
+    throw new Error(`Identifiant de table Baserow manquant dans l'endpoint "${endpoint}".`);
   }
 
   const method = (options.method || 'get').toLowerCase();
