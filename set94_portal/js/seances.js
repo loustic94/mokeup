@@ -1,8 +1,21 @@
 // Module Séances - Réservation de créneaux d'ateliers
+//
+// ⚠️ CORRECTIFS APPLIQUÉS :
+// 1. 'Nom_Atelier' → 'Atelier' : alignement sur le nom de champ réel de SEANCES.
+// 2. 'Séance_Complète' → 'Séance_complète' : casse réelle du champ formule Baserow.
+// 3. Résolution du nom d'atelier via une table de correspondance (ateliersNoms),
+//    au lieu de lire le texte directement dans le champ 'Atelier' de SEANCES.
+//    Raison : ce champ sert à deux usages incompatibles selon le fournisseur —
+//    filtrer (a besoin d'un ID) et afficher (a besoin d'un texte). Le shim
+//    Baserow (api.js) renvoie systématiquement des ID (nécessaire pour que le
+//    filtrage marche), donc le nom affiché doit être résolu séparément via la
+//    table ATELIERS, plutôt que supposé présent tel quel dans le champ.
+
 const SeancesModule = {
   seancesFutures: [],         // Toutes les séances futures chargées
   inscriptionsExistantes: new Set(), // IDs des séances déjà réservées
   ateliersActifsMembre: new Set(),   // IDs des ateliers actifs du membre
+  ateliersNoms: {},           // { id: nom } — résolution ID → nom d'atelier
   loading: false,
   
   // Cache de chargement pour éviter les appels réseaux répétés à chaque activation d'onglet
@@ -17,6 +30,7 @@ const SeancesModule = {
     this.seancesFutures = [];
     this.inscriptionsExistantes.clear();
     this.ateliersActifsMembre.clear();
+    this.ateliersNoms = {};
   },
 
   onActivate() {
@@ -122,7 +136,17 @@ const SeancesModule = {
       const tableInscriptions = window.CONFIG.get('TABLE_INSCRIPTIONS');
       const tableInscripSeances = window.CONFIG.get('TABLE_INSCRIPTIONS_SEANCES');
       const tableSeances = window.CONFIG.get('TABLE_SEANCES');
+      const tableAteliers = window.CONFIG.get('TABLE_ATELIERS');
       const memberId = window.AppState.member.id;
+
+      // 0. Charger la table de correspondance ID → nom d'atelier (une seule fois)
+      if (Object.keys(this.ateliersNoms).length === 0) {
+        const dataAteliers = await window.API.airtableFetch(encodeURIComponent(tableAteliers));
+        (dataAteliers.records || []).forEach(r => {
+          const nom = r.fields['Nom_Atelier'] || r.fields['Name'] || '';
+          this.ateliersNoms[r.id] = nom;
+        });
+      }
 
       // 1. Charger les ateliers actifs du membre
       if (this.ateliersActifsMembre.size === 0) {
@@ -161,17 +185,13 @@ const SeancesModule = {
       // 3. Charger toutes les séances futures programmées
       if (this.seancesFutures.length === 0) {
         const aujourd_hui = new Date().toISOString();
-        const formuleSeances = `IS_AFTER({Date_Heure}, "${aujourd_hui}")`;
+        const formuleSeances = `AND(IS_AFTER({Date_Heure}, "${aujourd_hui}"), OR({Statut}="Programmée", {Statut}=""))`;
         const urlSeances = `${encodeURIComponent(tableSeances)}`
           + `?filterByFormula=${encodeURIComponent(formuleSeances)}`
           + `&sort[0][field]=Date_Heure&sort[0][direction]=asc`;
         
         const dataSeances = await window.API.airtableFetch(urlSeances);
-        // Filtrer les séances programmées ou sans statut côté client
-        this.seancesFutures = (dataSeances.records || []).filter(s => {
-          const stat = s.fields['Statut'] || '';
-          return stat === 'Programmée' || stat === '';
-        });
+        this.seancesFutures = dataSeances.records || [];
       }
 
       this.dataLoaded = true;
@@ -193,20 +213,31 @@ const SeancesModule = {
     }
   },
 
+  // Résout le nom d'un atelier à partir d'une séance, en gérant les deux
+  // formats possibles du champ 'Atelier' selon le fournisseur actif :
+  // - Airtable (lookup) : déjà un texte lisible, ex. "Couture"
+  // - Baserow (via le shim api.js) : un ID numérique, à résoudre via
+  //   la table de correspondance ateliersNoms chargée dans chargerDonnees()
+  resoudreNomAtelier(seance) {
+    const f = seance?.fields || {};
+    const v = f['Atelier'];
+    const raw = Array.isArray(v) ? v[0] : v;
+    if (raw === undefined || raw === null || raw === '') return '';
+
+    // Si c'est déjà un texte non numérique, c'est un nom (cas Airtable) : on le garde tel quel.
+    if (typeof raw === 'string' && isNaN(Number(raw))) return raw;
+
+    // Sinon c'est un ID (cas Baserow) : on le résout via la table de correspondance.
+    return this.ateliersNoms[raw] || String(raw);
+  },
+
   afficherFiltres() {
     const wrap = document.getElementById('sea-filters');
     if (!wrap) return;
 
-    // Récupérer la liste des séances filtrées par "Mes ateliers uniquement" pour construire les filtres
     const seancesInitiales = this.getSeancesFiltreesParOptionAteliers();
     
-    // Extraire tous les ateliers uniques représentés dans ces séances
-    const getAtelierNom = s => {
-      const v = s.fields['Atelier'];
-      return Array.isArray(v) ? (v[0] || '') : (v || '');
-    };
-    
-    const ateliersNoms = [...new Set(seancesInitiales.map(getAtelierNom).filter(Boolean))].sort();
+    const ateliersNoms = [...new Set(seancesInitiales.map(s => this.resoudreNomAtelier(s)).filter(Boolean))].sort();
 
     if (ateliersNoms.length <= 1) {
       wrap.innerHTML = '';
@@ -243,15 +274,9 @@ const SeancesModule = {
 
     const seancesFiltreesParOption = this.getSeancesFiltreesParOptionAteliers();
 
-    const getAtelierNom = s => {
-      const v = s.fields['Atelier'];
-      return Array.isArray(v) ? (v[0] || '') : (v || '');
-    };
-
-    // Appliquer le filtre spécifique de l'atelier
     const filtreesFinal = this.filtreAtelier === 'Tous'
       ? seancesFiltreesParOption
-      : seancesFiltreesParOption.filter(s => getAtelierNom(s) === this.filtreAtelier);
+      : seancesFiltreesParOption.filter(s => this.resoudreNomAtelier(s) === this.filtreAtelier);
 
     if (this.seancesFutures.length === 0) {
       listEl.innerHTML = '<div class="aucune-seance">Aucune séance programmée dans le futur.</div>';
@@ -274,10 +299,10 @@ const SeancesModule = {
 
     listEl.innerHTML = filtreesFinal.map(s => {
       const f = s.fields;
-      const atelierVal = Array.isArray(f['Atelier']) ? f['Atelier'][0] : (f['Atelier'] || '');
+      const atelierVal = this.resoudreNomAtelier(s);
       const placesLimitees = f['Places_Limitées'] === true;
       const placesMax = f['Places_Max'] || 0;
-      const seanceComplete = f['Séance_Complète'] || f['Seance_Complete'] || '';
+      const seanceComplete = f['Séance_complète'] || '';
       const complet = seanceComplete.includes('COMPLET');
       const dejaInscrit = this.inscriptionsExistantes.has(s.id);
       
@@ -369,11 +394,11 @@ const SeancesModule = {
         const seanceId = seancesChoisies[i];
         const seance = this.seancesFutures.find(s => s.id === seanceId);
         const f = seance?.fields || {};
-        const atelierVal = Array.isArray(f['Atelier']) ? f['Atelier'][0] : (f['Atelier'] || '');
+        const atelierVal = this.resoudreNomAtelier(seance || {});
         const titreSeance = f['Titre séance'] || atelierVal || 'Séance';
 
         // Double vérification côté client
-        const seanceComplete = f['Séance_Complète'] || f['Seance_Complete'] || '';
+        const seanceComplete = f['Séance_complète'] || '';
         if (seanceComplete.includes('COMPLET')) {
           erreurs.push(`❌ <strong>${titreSeance}</strong> — Complète, réservation ignorée.`);
           if (progressBar) progressBar.style.width = Math.round(100 * (i + 1) / total) + '%';
