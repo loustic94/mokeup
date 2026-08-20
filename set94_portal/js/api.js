@@ -184,11 +184,33 @@ async function listerLignesCommeAirtable(tableId, queryParams) {
   return { records };
 }
 
+// Les valeurs venant du HTML (checkbox.value, etc.) sont toujours des
+// chaînes de texte. Pour un champ lien Baserow, envoyer un tableau de
+// chaînes numériques (ex. ["11"]) au lieu de nombres (ex. [11]) fait que
+// Baserow tente une recherche par texte sur le champ primaire de la table
+// liée plutôt qu'une résolution par ID — d'où l'erreur "provided text
+// value '11' doesn't match any row". On convertit donc systématiquement
+// les tableaux de chaînes purement numériques en tableaux de nombres.
+function normaliserChampsLiesPourBaserow(donnees) {
+  const resultat = {};
+  Object.keys(donnees).forEach(key => {
+    const v = donnees[key];
+    if (Array.isArray(v)) {
+      resultat[key] = v.map(item =>
+        (typeof item === 'string' && /^\d+$/.test(item)) ? Number(item) : item
+      );
+    } else {
+      resultat[key] = v;
+    }
+  });
+  return resultat;
+}
+
 async function creerLigneCommeAirtable(tableId, options) {
   const baserowUrl = window.CONFIG.get('BASEROW_URL') || 'https://api.baserow.io';
   const token = window.CONFIG.get('TOKEN');
   const body = JSON.parse(options.body || '{}');
-  const donnees = body.fields || {};
+  const donnees = normaliserChampsLiesPourBaserow(body.fields || {});
 
   const res = await fetch(
     `${baserowUrl}/api/database/rows/table/${tableId}/?user_field_names=true`,
@@ -213,7 +235,7 @@ async function modifierLigneCommeAirtable(tableId, recordId, options) {
   const baserowUrl = window.CONFIG.get('BASEROW_URL') || 'https://api.baserow.io';
   const token = window.CONFIG.get('TOKEN');
   const body = JSON.parse(options.body || '{}');
-  const donnees = body.fields || {};
+  const donnees = normaliserChampsLiesPourBaserow(body.fields || {});
 
   const res = await fetch(
     `${baserowUrl}/api/database/rows/table/${tableId}/${recordId}/?user_field_names=true`,
@@ -263,10 +285,44 @@ function evaluerFormuleAirtable(formule, fields) {
     return dateOk && statutOk;
   }
 
+  // Cas 4 (générique) : AND(cond1, cond2, ..., condN), chaque cond étant elle-même
+  // une formule reconnue (typiquement des égalités simples enchaînées, comme dans
+  // la recherche de membre par Email+Nom+Prénom).
+  m = formule.match(/^AND\((.+)\)$/);
+  if (m) {
+    const conditions = splitArgumentsFormule(m[1]);
+    if (conditions.length > 1) {
+      return conditions.every(cond => evaluerFormuleAirtable(cond.trim(), fields));
+    }
+  }
+
   throw new Error(
     `Formule Airtable non prise en charge par le shim Baserow : "${formule}". ` +
     `Ajoutez un cas dans evaluerFormuleAirtable() (api.js).`
   );
+}
+
+// Découpe les arguments d'une fonction Airtable au niveau supérieur
+// (ex. "A, B, C" → ["A", "B", "C"]), sans casser les virgules qui seraient
+// à l'intérieur de parenthèses imbriquées ou de guillemets.
+function splitArgumentsFormule(str) {
+  const parts = [];
+  let depth = 0, current = '', inQuotes = false;
+  for (const char of str) {
+    if (char === '"') inQuotes = !inQuotes;
+    if (!inQuotes) {
+      if (char === '(') depth++;
+      if (char === ')') depth--;
+    }
+    if (char === ',' && depth === 0 && !inQuotes) {
+      parts.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  if (current) parts.push(current);
+  return parts;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
