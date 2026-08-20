@@ -215,7 +215,7 @@ async function creerLigneCommeAirtable(tableId, options) {
   const res = await fetch(
     `${baserowUrl}/api/database/rows/table/${tableId}/?user_field_names=true`,
     {
-      method: 'post',
+      method: 'POST',
       headers: {
         Authorization: `Token ${token}`,
         'Content-Type': 'application/json'
@@ -240,7 +240,7 @@ async function modifierLigneCommeAirtable(tableId, recordId, options) {
   const res = await fetch(
     `${baserowUrl}/api/database/rows/table/${tableId}/${recordId}/?user_field_names=true`,
     {
-      method: 'patch',
+      method: 'PATCH',
       headers: {
         Authorization: `Token ${token}`,
         'Content-Type': 'application/json'
