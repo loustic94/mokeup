@@ -275,14 +275,20 @@ function evaluerFormuleAirtable(formule, fields) {
     return tableau.map(String).includes(id);
   }
 
-  // Cas 3 : AND(IS_AFTER({DateChamp}, "iso"), OR({StatutChamp}="A", {StatutChamp}=""))
-  m = formule.match(/^AND\(IS_AFTER\(\{([^}]+)\},\s*"([^"]+)"\),\s*OR\(\{([^}]+)\}="([^"]*)",\s*\{[^}]+\}=""\)\)$/);
+  // Cas 3 : IS_AFTER({Champ}, "iso") — seule ou imbriquée dans un AND/OR générique
+  m = formule.match(/^IS_AFTER\(\{([^}]+)\},\s*"([^"]+)"\)$/);
   if (m) {
-    const [, champDate, dateRef, champStatut, statutValide] = m;
-    const dateOk = fields[champDate] && new Date(fields[champDate]) > new Date(dateRef);
-    const statut = fields[champStatut] || '';
-    const statutOk = statut === statutValide || statut === '';
-    return dateOk && statutOk;
+    const [, champ, dateRef] = m;
+    return !!fields[champ] && new Date(fields[champ]) > new Date(dateRef);
+  }
+
+  // Cas 3bis : OR(cond1, cond2, ..., condN), générique — au moins une condition vraie
+  m = formule.match(/^OR\((.+)\)$/);
+  if (m) {
+    const conditions = splitArgumentsFormule(m[1]);
+    if (conditions.length > 1) {
+      return conditions.some(cond => evaluerFormuleAirtable(cond.trim(), fields));
+    }
   }
 
   // Cas 4 (générique) : AND(cond1, cond2, ..., condN), chaque cond étant elle-même
