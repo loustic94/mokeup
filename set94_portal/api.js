@@ -131,7 +131,6 @@ async function baserowFetchAllRows(tableId) {
   }
   return all;
 }
-
 // Convertit une ligne Baserow (champs à plat) en enregistrement Airtable
 // ({id, fields}), et transforme les champs liés (tableaux de {id, value})
 // en simples tableaux d'ID, comme le renvoyait Airtable.
