@@ -127,7 +127,7 @@ async function baserowFetchAllRows(tableId) {
     }
     const data = await res.json();
     all = all.concat(data.results);
-    url = data.next;
+    url = data.next ? data.next.replace(/^http:\/\//i, 'https://') : null; // ✅ correctif
   }
   return all;
 }
