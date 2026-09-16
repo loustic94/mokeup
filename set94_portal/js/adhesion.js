@@ -22,10 +22,12 @@ const AdhesionModule = {
         `${encodeURIComponent(tableAteliers)}?sort[0][field]=Nom_Atelier&sort[0][direction]=asc`
       );
 
-      this.ateliersDisponibles = data.records.map(r => ({
+      this.ateliersDisponibles = data.records.filter(r => r.fields['Statut'] === true).map(r => ({
         id: r.id,
         nom: r.fields['Nom_Atelier'] || r.fields['Name'] || '(sans nom)'
       }));
+
+
 
       this.afficherAteliers();
     } catch (e) {
