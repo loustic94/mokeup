@@ -180,7 +180,7 @@ const AppState = {
         `${encodeURIComponent(window.CONFIG.get('TABLE_ATELIERS'))}?maxRecords=100`
       );
       if (countAteliersEl) {
-        countAteliersEl.textContent = ateliersData.records?.length || 0;
+        countAteliersEl.textContent = ateliersData.records?.filter(a => a.fields['Statut'] === true).length || 0;
       }
 
       // 2. Séances futures
