@@ -200,7 +200,7 @@ const MembreModule = {
       return;
     }
 
-    grid.innerHTML = this.ateliersDisponibles.map(a => {
+    grid.innerHTML = this.ateliersDisponibles.filter(r => r.fields['Statut'] === true).map(a => {
       const inscrite = this.inscriptionsActives[a.id] !== undefined;
       return `
         <div class="atelier-card ${inscrite ? 'selected' : ''}" id="mbr-card-${a.id}" onclick="MembreModule.toggleAtelier('${a.id}')">
