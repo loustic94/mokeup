@@ -149,7 +149,7 @@ const MembreModule = {
       const dataAteliers = await window.API.airtableFetch(
         `${encodeURIComponent(tableAteliers)}?sort[0][field]=Nom_Atelier&sort[0][direction]=asc`
       );
-      this.ateliersDisponibles = dataAteliers.records.map(r => ({
+      this.ateliersDisponibles = dataAteliers.records.filter(r => r.fields['Statut'] === true).map(r => ({
         id: r.id,
         nom: r.fields['Nom_Atelier'] || r.fields['Name'] || '(sans nom)'
       }));
@@ -200,7 +200,7 @@ const MembreModule = {
       return;
     }
 
-    grid.innerHTML = this.ateliersDisponibles.filter(r => r.fields['Statut'] === true).map(a => {
+    grid.innerHTML = this.ateliersDisponibles.map(a => {
       const inscrite = this.inscriptionsActives[a.id] !== undefined;
       return `
         <div class="atelier-card ${inscrite ? 'selected' : ''}" id="mbr-card-${a.id}" onclick="MembreModule.toggleAtelier('${a.id}')">
